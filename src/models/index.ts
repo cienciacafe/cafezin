@@ -22,13 +22,13 @@ export declare interface Channel {
   Identity: string; // identificador único e memorável ("arroba")
   FeedLocation: string;
   Type: ChannelType;
-  Title: string | undefined;
-  AvatarURL: string | undefined;
-  BannerURL: string | undefined;
-  Description: string | undefined;
-  About: string | undefined; // descrição mais longa. TODO: aceitar markdown
-  Keywords: Array<string> | undefined;
-  Links: Array<SocialLink> | undefined;
+  Title: string | undefined | null;
+  AvatarURL: string | undefined | null;
+  BannerURL: string | undefined | null;
+  Description: string | undefined | null;
+  About: string | undefined | null; // descrição mais longa. TODO: aceitar markdown
+  Keywords: Array<string> | undefined | null;
+  Links: Array<SocialLink> | undefined | null;
 }
 
 export declare interface Creator {

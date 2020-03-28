@@ -1,3 +1,4 @@
+import { google } from "googleapis";
 import { ChannelType, Channel } from "./models";
 
 const fs = require("fs");
@@ -6,18 +7,61 @@ const got = require("got");
 const mkdirp = require("mkdirp");
 const queryString = require("query-string");
 
-async function getChannelsInfo() {
+const youtube = google.youtube({
+  version: 'v3',
+  auth: process.env.YT_API_KEY,
+})
+
+async function getChannelsInfo(): Promise<Map<String, Channel>> {
   const dc = fs.readFileSync(`${__dirname}/../data/channels.json`);
   const channelsList: Array<Channel> = JSON.parse(dc);
-  const channelIDs: Array<string> = _.chunk(channelsList.map((c) => c.FeedLocation.split('/channel/').pop()), 42);
-  
-  // for (const channel of cha)
+  const channelsMap: Map<String, Channel> = channelsList.filter((c) => c.Type == ChannelType.Youtube).reduce((map, c) => {
+    const channelID = c.FeedLocation.split('/channel/').pop();
+    if (!!channelID) map.set(channelID, c);
+    return map;
+  }, new Map<String, Channel>());
+  const channelIDsChunks: Array<Array<string>> = _.chunk(Array.from(channelsMap.keys()), 50);
+
+  for (const channelIDs of channelIDsChunks) {
+    const { data } = await youtube.channels.list({
+      id: channelIDs.join(','),
+      part: ["snippet", "contentDetails", "brandingSettings"].join(',')
+    });
+
+    const dataItems = data.items || [];
+
+    for (const channelInfo of dataItems) {
+      const { title, description, thumbnails } = channelInfo.snippet
+      const { image, channel: channelSettings } = channelInfo.brandingSettings
+      const { relatedPlaylists } = channelInfo.contentDetails
+      const bannerURL = `${(image?.bannerImageUrl || '').split('=w')[0]}=w1960-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj`
+      const keywords = (channelSettings && channelSettings.keywords) || ''
+      if (!channelInfo.id || !channelsMap.has(channelInfo.id)) {
+        continue;
+      }
+
+      channelsMap.set(channelInfo.id, {
+        ...(channelsMap.get(channelInfo.id) || { Identity: (channelInfo.snippet?.customUrl || channelInfo.id) }),
+        Title: title,
+        AvatarURL: thumbnails?.high?.url,
+        BannerURL: bannerURL,
+        Description: (description || '').split("\n")[0],
+        About: description,
+        Type: ChannelType.Youtube,
+        FeedLocation: (relatedPlaylists?.uploads || channelInfo.id),
+        Links: [],
+        Keywords: (keywords.match(/("[^"]+"|\S+)/gi) || []).map((e: string) => e.replace(/"/g, '')),
+      });
+    }
+  }
+
+  return channelsMap;
 }
 
 
 
-
-getChannelsInfo();
+getChannelsInfo().
+  then(console.log);
 
 // async function main() {
 //   const path = "channels";

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/cienciacafe/cafezin#readme",
   "dependencies": {
+    "googleapis": "^48.0.0",
     "got": "^10.6.0",
     "lodash": "^4.17.15",
     "mkdirp": "^1.0.3",
