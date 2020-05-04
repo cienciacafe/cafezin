@@ -1,5 +1,7 @@
+
 import util from 'util';
 import crypto from 'crypto';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Index, OneToOne, JoinColumn } from "typeorm";
 
 export enum PostType {
     Video = 0,
@@ -12,37 +14,78 @@ export enum SourceType {
     Youtube
 };
 
-export declare interface PostMedia {
-    Duration: number;
-    FileSize: number;
-    FileType: string;
-    URL: string;
-    Source: SourceType;
-};
-
-export declare interface Post {
-    Timestamp: number;
-    Title: string;
-    Text: string;
-    Summary: string;
-    GUID: string;
-    ImageURL: string;
-    Tags: Array<string>;
-    Type: PostType;
-    Media: PostMedia;
-};
-
 // Checksum calcula um identificador para o post baseado no title, summary, imageURL, media.duration, media.url e media.fileSize
 export function Checksum(p: Post): string {
     return crypto.createHash('sha256').update(
         util.format(
             "%s;%s;%s;%d;%s;%d",
-            p.Title,
-            p.Summary,
-            p.ImageURL,
-            p.Media.Duration,
-            p.Media.URL,
-            p.Media.FileSize,
+            p.title,
+            p.summary,
+            p.imageUrl,
+            p.media.duration,
+            p.media.url,
+            p.media.fileSize,
         )
     ).digest('hex');
+}
+
+@Entity()
+export class PostMedia {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column("float")
+    duration: number;
+
+    @Column("float")
+    fileSize: number;
+
+    @Column("varchar")
+    fileType: string;
+
+    @Column("varchar")
+    url: string;
+
+    @Column("enum", { enum: SourceType, nullable: false })
+    source: SourceType;
+
+    @OneToOne(type => Post, post => post.media)
+    post: Post;
+}
+
+@Entity()
+export class Post {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Index()
+    @Column("varchar")
+    slug: string; // identificador único e memorável ("arroba")
+
+    @Column("varchar")
+    title: string;
+
+    @Column("text")
+    text: string;
+
+    @Column("text")
+    summary: string;
+
+    @Column("varchar")
+    guid: string;
+
+    @Column("varchar")
+    imageUrl: string;
+
+    @Column("varchar", { array: true })
+    tags: Array<string>;
+
+    @Column("enum", { enum: PostType, nullable: false })
+    type: PostType;
+
+    @OneToOne(type => PostMedia, postMedia => postMedia.post)
+    @JoinColumn()
+    media: PostMedia;
 }
