@@ -24,22 +24,22 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "googleapis": "^48.0.0",
-    "got": "^10.6.0",
+    "got": "^10.7.0",
     "lodash": "^4.17.15",
-    "mkdirp": "^1.0.3",
-    "pg": "^8.0.3",
+    "mkdirp": "^1.0.4",
+    "pg": "^8.2.1",
     "pg-hstore": "^2.3.3",
-    "query-string": "^6.11.1",
-    "typeorm": "^0.2.24"
+    "query-string": "^6.12.1",
+    "typeorm": "^0.2.25"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.9.0",
-    "@babel/node": "^7.8.7",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-decorators": "^7.8.3",
-    "@babel/preset-env": "^7.9.0",
-    "@babel/preset-typescript": "^7.9.0",
-    "typescript": "^3.8.3"
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/node": "^7.10.1",
+    "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/plugin-proposal-decorators": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/preset-typescript": "^7.10.1",
+    "typescript": "^3.9.5"
   }
 }
